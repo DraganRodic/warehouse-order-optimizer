@@ -18,3 +18,14 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 func (r *ProductRepository) CreateMany(products []model.Product) error {
 	return r.db.Create(&products).Error
 }
+
+func (r *ProductRepository) FindBySKU(skus []string) ([]model.Product, error) {
+
+	var products []model.Product
+
+	err := r.db.
+		Where("sku IN ?", skus).
+		Find(&products).Error
+
+	return products, err
+}

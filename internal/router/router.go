@@ -12,6 +12,7 @@ func SetupRouter() *gin.Engine {
 	{
 		api.POST("/inventory/upload", handler.UploadInventory)
 		api.POST("/inventory/import", handler.ImportProducts)
+		api.POST("/orders/process", handler.ProcessOrder)
 	}
 
 	return r

@@ -18,3 +18,7 @@ func NewProductService(repo *repository.ProductRepository) *ProductService {
 func (s *ProductService) ImportProducts(products []model.Product) error {
 	return s.repo.CreateMany(products)
 }
+
+func (s *ProductService) FindProductsBySKU(skus []string) ([]model.Product, error) {
+	return s.repo.FindBySKU(skus)
+}

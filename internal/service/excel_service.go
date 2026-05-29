@@ -52,3 +52,41 @@ func ReadInventoryFile(filePath string) ([]model.Product, error) {
 
 	return products, nil
 }
+
+func ReadOrderFile(filePath string) ([]string, error) {
+
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		_ = f.Close()
+	}()
+
+	sheetName := f.GetSheetName(0)
+
+	rows, err := f.GetRows(sheetName)
+	if err != nil {
+		return nil, err
+	}
+
+	var skus []string
+
+	for _, row := range rows {
+
+		if len(row) == 0 {
+			continue
+		}
+
+		sku := strings.TrimSpace(row[0])
+
+		if sku == "" {
+			continue
+		}
+
+		skus = append(skus, sku)
+	}
+
+	return skus, nil
+}
