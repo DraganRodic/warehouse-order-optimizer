@@ -9,6 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var DB *gorm.DB
+
 func ConnectDB() *gorm.DB {
 
 	cfg := config.LoadConfig()
@@ -26,6 +28,8 @@ func ConnectDB() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	DB = db
 
 	log.Println("Database connected successfully")
 
