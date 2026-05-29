@@ -2,10 +2,9 @@ package handler
 
 import (
 	"net/http"
-	"sort"
+	"path/filepath"
 
 	"github.com/DraganRodic/warehouse-order-optimizer/internal/database"
-	"github.com/DraganRodic/warehouse-order-optimizer/internal/model"
 	"github.com/DraganRodic/warehouse-order-optimizer/internal/repository"
 	"github.com/DraganRodic/warehouse-order-optimizer/internal/service"
 	"github.com/gin-gonic/gin"
@@ -13,10 +12,26 @@ import (
 
 func ProcessOrder(c *gin.Context) {
 
-	var req model.OrderRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
+	file, err := c.FormFile("file")
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	savePath := filepath.Join("uploads", file.Filename)
+
+	if err := c.SaveUploadedFile(file, savePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	skus, err := service.ReadOrderFile(savePath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
@@ -25,7 +40,7 @@ func ProcessOrder(c *gin.Context) {
 	repo := repository.NewProductRepository(database.DB)
 	productService := service.NewProductService(repo)
 
-	products, err := productService.FindProductsBySKU(req.SKUs)
+	products, err := productService.FindProductsBySKU(skus)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -33,9 +48,7 @@ func ProcessOrder(c *gin.Context) {
 		return
 	}
 
-	sort.Slice(products, func(i, j int) bool {
-		return products[i].Location < products[j].Location
-	})
+	service.SortByLocation(products)
 
 	c.JSON(http.StatusOK, gin.H{
 		"count":    len(products),

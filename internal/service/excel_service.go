@@ -60,9 +60,7 @@ func ReadOrderFile(filePath string) ([]string, error) {
 		return nil, err
 	}
 
-	defer func() {
-		_ = f.Close()
-	}()
+	defer f.Close()
 
 	sheetName := f.GetSheetName(0)
 
