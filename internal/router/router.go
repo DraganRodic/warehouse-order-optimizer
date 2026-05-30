@@ -12,7 +12,14 @@ func SetupRouter() *gin.Engine {
 	{
 		api.POST("/inventory/upload", handler.UploadInventory)
 		api.POST("/inventory/import", handler.ImportProducts)
+
 		api.POST("/orders/process", handler.ProcessOrder)
+
+		api.GET("/products", handler.GetProducts)
+		api.GET("/products/:id", handler.GetProductByID)
+		api.POST("/products", handler.CreateProduct)
+		api.PUT("/products/:id", handler.UpdateProduct)
+		api.DELETE("/products/:id", handler.DeleteProduct)
 	}
 
 	return r
